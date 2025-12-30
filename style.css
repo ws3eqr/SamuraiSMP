@@ -64,3 +64,67 @@ function switchTab(tabName) {
     // Подсвечиваем кнопку
     document.getElementById('btn-' + tabName).classList.add('active-btn');
 }
+// --- ЧАСТЬ 2: МОНИТОРИНГ И КОПИРОВАНИЕ ---
+
+const SERVER_IP = "c12.play2go.cloud";
+const SERVER_PORT = "20002"; // Если порт отличается от 25565, API требует указать его
+
+// 1. Функция получения онлайна
+function updateServerStatus() {
+    const statusText = document.getElementById('server-status-text');
+    const statusDot = document.getElementById('status-dot');
+    const playerCount = document.getElementById('player-count');
+    const maxPlayers = document.getElementById('max-players');
+
+    // Используем бесплатный API mcsrvstat.us
+    fetch(`https://api.mcsrvstat.us/3/${SERVER_IP}:${SERVER_PORT}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.online) {
+                // Сервер включен
+                statusText.innerText = "Онлайн";
+                statusText.style.color = "#00AA00"; // Зеленый
+                statusDot.innerText = "🟢";
+                
+                playerCount.innerText = data.players.online;
+                maxPlayers.innerText = data.players.max;
+            } else {
+                // Сервер выключен
+                statusText.innerText = "Оффлайн";
+                statusText.style.color = "#FF5555"; // Красный
+                statusDot.innerText = "🔴";
+                playerCount.innerText = "0";
+                maxPlayers.innerText = "0";
+            }
+        })
+        .catch(error => {
+            console.error("Ошибка получения статуса:", error);
+            statusText.innerText = "Ошибка";
+        });
+}
+
+// Запускаем проверку при загрузке страницы
+document.addEventListener("DOMContentLoaded", () => {
+    // Ждем 4 секунды (пока пройдет анимация загрузки), чтобы не грузить сразу
+    setTimeout(updateServerStatus, 4000);
+    // Обновляем статус каждые 30 секунд
+    setInterval(updateServerStatus, 30000);
+});
+
+// 2. Функция копирования IP
+function copyIp() {
+    const ipText = "c12.play2go.cloud:20002";
+    const tooltip = document.getElementById('copy-tooltip');
+
+    navigator.clipboard.writeText(ipText).then(() => {
+        // Показываем подсказку "Скопировано!"
+        tooltip.style.opacity = "1";
+        
+        // Скрываем через 2 секунды
+        setTimeout(() => {
+            tooltip.style.opacity = "0";
+        }, 2000);
+    }).catch(err => {
+        console.error('Не удалось скопировать: ', err);
+    });
+}
