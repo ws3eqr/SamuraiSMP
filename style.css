@@ -1,1 +1,66 @@
+// --- ANTI-DDOS LOGIC ---
+document.addEventListener("DOMContentLoaded", () => {
+    const consoleLog = document.getElementById('console-log');
+    const ddosScreen = document.getElementById('ddos-screen');
+    const mainSite = document.getElementById('main-site');
+    const ddosText = document.getElementById('ddos-text');
 
+    // Фейковые логи проверки
+    const logs = [
+        "Connecting to c12.play2go.cloud...",
+        "Checking handshake...",
+        "Verifying samurai spirit...",
+        "Loading assets: Sakura.png...",
+        "Connection SECURE."
+    ];
+
+    let logIndex = 0;
+
+    // Смена текста логов каждые 800мс
+    const logInterval = setInterval(() => {
+        if (logIndex < logs.length) {
+            consoleLog.innerText = logs[logIndex];
+            logIndex++;
+        }
+    }, 800);
+
+    // Смена заголовка
+    setTimeout(() => {
+        ddosText.innerText = "Access Granted.";
+        ddosText.style.color = "#00FF00";
+    }, 3800);
+
+    // Открытие сайта через 4.5 секунды
+    setTimeout(() => {
+        clearInterval(logInterval);
+        ddosScreen.style.opacity = "0";
+        setTimeout(() => {
+            ddosScreen.style.display = "none";
+            mainSite.classList.remove("hidden");
+            // Небольшая задержка для плавности появления
+            setTimeout(() => {
+                mainSite.style.opacity = "1";
+                document.title = "Samurai SMP | Home";
+            }, 100);
+        }, 1000);
+    }, 4500);
+});
+
+// --- ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ---
+function switchTab(tabName) {
+    // Скрываем все вкладки
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.classList.add('hidden'));
+    tabs.forEach(tab => tab.classList.remove('active-tab'));
+
+    // Убираем подсветку кнопок
+    const buttons = document.querySelectorAll('.menu-items button');
+    buttons.forEach(btn => btn.classList.remove('active-btn'));
+
+    // Показываем нужную
+    document.getElementById('tab-' + tabName).classList.remove('hidden');
+    document.getElementById('tab-' + tabName).classList.add('active-tab');
+    
+    // Подсвечиваем кнопку
+    document.getElementById('btn-' + tabName).classList.add('active-btn');
+}
