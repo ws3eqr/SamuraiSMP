@@ -1,1 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samurai SMP | Loading...</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Подключаем шрифт Minecraft -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- Иконка сайта (замени ссылку на свою, если есть) -->
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5762/5762900.png" type="image/x-icon">
+</head>
+<body>
 
+    <!-- ФОН (Сакура) -->
+    <div class="background-animation"></div>
+    <div class="overlay"></div>
+
+    <!-- ЭКРАН ЗАГРУЗКИ (Анти-DDoS) -->
+    <div id="ddos-screen">
+        <div class="ddos-container">
+            <div class="shield-icon">🛡️</div>
+            <h2 id="ddos-text">Checking your browser...</h2>
+            <div class="loading-bar">
+                <div class="progress"></div>
+            </div>
+            <p class="sub-text">DDoS protection by Samurai Guard</p>
+            <p class="console-text" id="console-log">Connecting to c12.play2go.cloud...</p>
+        </div>
+    </div>
+
+    <!-- ГЛАВНОЕ МЕНЮ (Скрыто пока идет загрузка) -->
+    <div id="main-site" class="hidden">
+        
+        <!-- НАВИГАЦИЯ (Вкладки) -->
+        <nav class="navbar">
+            <div class="logo">⛩ SAMURAI</div>
+            <div class="menu-items">
+                <button onclick="switchTab('home')" class="active-btn" id="btn-home">Home</button>
+                <button onclick="switchTab('top')" id="btn-top">Top List</button>
+                <button onclick="switchTab('support')" id="btn-support">Support</button>
+                <button onclick="switchTab('settings')" id="btn-settings">⚙️</button>
+            </div>
+        </nav>
+
+        <!-- КОНТЕЙНЕР ДЛЯ СТРАНИЦ -->
+        <div class="content-container">
+            <!-- Сюда мы будем вставлять контент в следующих частях -->
+            <div id="tab-home" class="tab-content active-tab">
+                <!-- Главная страница будет здесь -->
+            </div>
+            
+            <div id="tab-top" class="tab-content hidden">
+                <!-- Топ лист будет здесь -->
+            </div>
+
+            <div id="tab-support" class="tab-content hidden">
+                <!-- Поддержка будет здесь -->
+            </div>
+
+            <div id="tab-settings" class="tab-content hidden">
+                <!-- Настройки будут здесь -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключаем скрипт (его напишем позже) -->
+    <script src="script.js"></script>
+</body>
+</html>
