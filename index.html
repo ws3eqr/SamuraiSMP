@@ -3,68 +3,369 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Samurai SMP | Loading...</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Подключаем шрифт Minecraft -->
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <!-- Иконка сайта (замени ссылку на свою, если есть) -->
+    <title>Samurai SMP | Official Site</title>
+    
+    <!-- Иконка сайта (Логотип) -->
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5762/5762900.png" type="image/x-icon">
+    
+    <!-- Шрифт Minecraft -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <!-- СТИЛИ (CSS) -->
+    <style>
+        :root {
+            --primary: #FFB7C5; /* Сакура */
+            --secondary: #FF69B4; /* Розовый */
+            --dark: #121212;
+            --panel: rgba(0, 0, 0, 0.85);
+            --font-mc: 'Press Start 2P', cursive;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--dark);
+            font-family: var(--font-mc);
+            color: white;
+            height: 100vh;
+            overflow: hidden; /* Чтобы не скроллилось при загрузке */
+        }
+
+        /* --- ФОН --- */
+        .background {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://i.pinimg.com/originals/1c/1c/64/1c1c645d91cb61245032549d4432130c.gif') no-repeat center center fixed;
+            background-size: cover;
+            filter: blur(4px);
+            z-index: -2;
+        }
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: -1;
+        }
+
+        /* --- ЭКРАН ЗАГРУЗКИ (ANTI-DDOS) --- */
+        #loading-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 1s ease;
+        }
+
+        .shield {
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .loading-bar {
+            width: 300px;
+            height: 10px;
+            background: #333;
+            border: 2px solid #fff;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            box-shadow: 0 0 10px var(--primary);
+            transition: width 0.5s;
+        }
+
+        .console-log {
+            font-family: monospace;
+            color: #0f0;
+            font-size: 10px;
+            margin-top: 10px;
+            height: 20px;
+        }
+
+        /* --- ГЛАВНЫЙ САЙТ --- */
+        #main-site {
+            display: none; /* Скрыто до загрузки */
+            opacity: 0;
+            transition: opacity 1s;
+            height: 100%;
+            flex-direction: column;
+        }
+
+        /* Навигация */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(0,0,0,0.9);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .logo { color: var(--primary); font-size: 16px; text-shadow: 2px 2px #000; }
+
+        .menu-btn {
+            background: none; border: none; color: #aaa;
+            font-family: var(--font-mc); cursor: pointer;
+            font-size: 10px; margin-left: 15px; padding: 10px;
+            transition: 0.3s;
+        }
+        .menu-btn:hover, .active-btn {
+            color: #fff; text-shadow: 0 0 5px var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        /* Контент */
+        .container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .tab-content { display: none; text-align: center; width: 100%; max-width: 600px; animation: slideUp 0.5s ease; }
+        .active-tab { display: block; }
+
+        /* Элементы Главной */
+        .server-logo-img { width: 100px; filter: drop-shadow(0 0 15px var(--primary)); margin-bottom: 10px; }
+        
+        .server-title { font-size: 28px; margin-bottom: 5px; text-shadow: 3px 3px 0 #000; }
+        .server-desc { font-size: 10px; color: #ccc; font-family: sans-serif; margin-bottom: 30px; }
+
+        .status-box {
+            background: rgba(0,0,0,0.7);
+            border: 2px solid #555;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 12px;
+        }
+
+        .ip-container {
+            position: relative;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid var(--secondary);
+            padding: 20px;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .ip-container:hover { transform: scale(1.05); background: rgba(255,183,197,0.1); }
+        .ip-text { font-size: 14px; color: var(--primary); }
+        .click-hint { font-size: 8px; color: #777; margin-top: 5px; font-family: sans-serif; }
+
+        .tooltip {
+            position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%);
+            background: #00AA00; padding: 5px; font-size: 10px; border-radius: 3px;
+            opacity: 0; transition: 0.3s;
+        }
+
+        .socials { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .btn {
+            text-decoration: none; color: white; background: #444;
+            padding: 10px 15px; font-size: 10px;
+            border-bottom: 4px solid #222; border-radius: 2px;
+            transition: 0.1s; display: flex; align-items: center; gap: 5px;
+        }
+        .btn:hover { background: #555; transform: translateY(-2px); }
+        .btn:active { border-bottom: 1px solid #222; transform: translateY(2px); }
+        .btn-admin { background: #5e4b35; color: #FFD700; border-color: #3d2f20; }
+
+        /* Анимации */
+        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.1);} 100% {transform: scale(1);} }
+        @keyframes slideUp { from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);} }
+
+        /* Мобилка */
+        @media (max-width: 600px) {
+            .navbar { flex-direction: column; gap: 10px; }
+            .server-title { font-size: 20px; }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- ФОН (Сакура) -->
-    <div class="background-animation"></div>
+    <!-- ФОН -->
+    <div class="background"></div>
     <div class="overlay"></div>
 
-    <!-- ЭКРАН ЗАГРУЗКИ (Анти-DDoS) -->
-    <div id="ddos-screen">
-        <div class="ddos-container">
-            <div class="shield-icon">🛡️</div>
-            <h2 id="ddos-text">Checking your browser...</h2>
-            <div class="loading-bar">
-                <div class="progress"></div>
-            </div>
-            <p class="sub-text">DDoS protection by Samurai Guard</p>
-            <p class="console-text" id="console-log">Connecting to c12.play2go.cloud...</p>
-        </div>
+    <!-- 1. ЭКРАН ЗАГРУЗКИ (Anti-DDoS) -->
+    <div id="loading-screen">
+        <div class="shield">🛡️</div>
+        <div style="color: var(--primary); font-size: 12px; margin-bottom: 5px;">Checking Browser...</div>
+        <div class="loading-bar"><div class="progress" id="progress-bar"></div></div>
+        <div class="console-log" id="console-log">Connecting...</div>
     </div>
 
-    <!-- ГЛАВНОЕ МЕНЮ (Скрыто пока идет загрузка) -->
-    <div id="main-site" class="hidden">
+    <!-- 2. ГЛАВНЫЙ САЙТ -->
+    <div id="main-site">
         
-        <!-- НАВИГАЦИЯ (Вкладки) -->
+        <!-- Меню -->
         <nav class="navbar">
             <div class="logo">⛩ SAMURAI</div>
-            <div class="menu-items">
-                <button onclick="switchTab('home')" class="active-btn" id="btn-home">Home</button>
-                <button onclick="switchTab('top')" id="btn-top">Top List</button>
-                <button onclick="switchTab('support')" id="btn-support">Support</button>
-                <button onclick="switchTab('settings')" id="btn-settings">⚙️</button>
+            <div class="menu">
+                <button onclick="openTab('home')" class="menu-btn active-btn" id="btn-home">Home</button>
+                <button onclick="openTab('top')" class="menu-btn" id="btn-top">Top List</button>
+                <button onclick="openTab('support')" class="menu-btn" id="btn-support">Support</button>
+                <button onclick="openTab('settings')" class="menu-btn" id="btn-settings">⚙️</button>
             </div>
         </nav>
 
-        <!-- КОНТЕЙНЕР ДЛЯ СТРАНИЦ -->
-        <div class="content-container">
-            <!-- Сюда мы будем вставлять контент в следующих частях -->
-            <div id="tab-home" class="tab-content active-tab">
-                <!-- Главная страница будет здесь -->
-            </div>
+        <!-- Контент -->
+        <div class="container">
             
-            <div id="tab-top" class="tab-content hidden">
-                <!-- Топ лист будет здесь -->
+            <!-- ВКЛАДКА: HOME -->
+            <div id="tab-home" class="tab-content active-tab">
+                <img src="https://cdn-icons-png.flaticon.com/512/5762/5762900.png" class="server-logo-img">
+                <h1 class="server-title">SAMURAI <span style="color:var(--primary)">SMP</span></h1>
+                <p class="server-desc">Эпическое выживание в мире Сакуры 🌸</p>
+
+                <!-- Мониторинг -->
+                <div class="status-box">
+                    <div>Статус: <span id="status-text" style="color: red;">Checking...</span></div>
+                    <div>Онлайн: <span id="online-count" style="color: var(--primary);">0</span> / <span id="max-count">0</span></div>
+                </div>
+
+                <!-- IP Адрес -->
+                <div class="ip-container" onclick="copyIP()">
+                    <div style="font-size: 10px; color: #888; margin-bottom: 5px;">IP АДРЕС:</div>
+                    <div class="ip-text" id="ip-address">c12.play2go.cloud:20002</div>
+                    <div class="click-hint">(Нажми, чтобы скопировать)</div>
+                    <div class="tooltip" id="tooltip">Скопировано!</div>
+                </div>
+
+                <!-- Кнопки -->
+                <div class="socials">
+                    <a href="https://t.me/SamuraiSMP" target="_blank" class="btn">📢 Новости</a>
+                    <a href="https://t.me/SMPsamurai" target="_blank" class="btn">💬 Чат</a>
+                    <a href="https://t.me/ws3eqr" target="_blank" class="btn btn-admin">👑 Создатель</a>
+                </div>
             </div>
 
-            <div id="tab-support" class="tab-content hidden">
-                <!-- Поддержка будет здесь -->
+            <!-- ВКЛАДКА: ТОП (Пока заглушка) -->
+            <div id="tab-top" class="tab-content">
+                <h2>🏆 ТОП ИГРОКОВ</h2>
+                <br>
+                <p style="font-size: 10px; color: #888;">Скоро здесь будут лучшие воины...</p>
             </div>
 
-            <div id="tab-settings" class="tab-content hidden">
-                <!-- Настройки будут здесь -->
+            <!-- ВКЛАДКА: ПОДДЕРЖКА -->
+            <div id="tab-support" class="tab-content">
+                <h2>🆘 ПОДДЕРЖКА</h2>
+                <br>
+                <p style="font-size: 10px;">Возникли проблемы?</p>
+                <br>
+                <a href="https://t.me/ws3eqr" target="_blank" class="btn" style="justify-content: center;">Написать Сёгуну</a>
             </div>
+
+            <!-- ВКЛАДКА: НАСТРОЙКИ -->
+            <div id="tab-settings" class="tab-content">
+                <h2>⚙️ НАСТРОЙКИ</h2>
+                <br>
+                <p style="font-size: 10px; color: #888;">Язык: Русский (по умолчанию)</p>
+            </div>
+
         </div>
     </div>
 
-    <!-- Подключаем скрипт (его напишем позже) -->
-    <script src="script.js"></script>
+    <!-- СКРИПТЫ (JS) -->
+    <script>
+        // 1. ЛОГИКА ЗАГРУЗКИ (Fake Anti-DDoS)
+        const logs = [
+            "Connecting to c12.play2go.cloud...",
+            "Checking browser signature...",
+            "Verifying Samurai Spirit...",
+            "DDoS Protection: ACTIVE",
+            "Access Granted."
+        ];
+        let logIndex = 0;
+        const logEl = document.getElementById('console-log');
+        const barEl = document.getElementById('progress-bar');
+        const screenEl = document.getElementById('loading-screen');
+        const siteEl = document.getElementById('main-site');
+
+        // Анимация логов и полоски
+        const interval = setInterval(() => {
+            if (logIndex < logs.length) {
+                logEl.innerText = logs[logIndex];
+                barEl.style.width = ((logIndex + 1) * 20) + "%";
+                logIndex++;
+            } else {
+                clearInterval(interval);
+                finishLoading();
+            }
+        }, 800); // Скорость загрузки
+
+        function finishLoading() {
+            setTimeout(() => {
+                screenEl.style.opacity = '0';
+                setTimeout(() => {
+                    screenEl.style.display = 'none';
+                    siteEl.style.display = 'flex';
+                    // Плавное появление сайта
+                    setTimeout(() => siteEl.style.opacity = '1', 50);
+                }, 1000);
+            }, 500);
+        }
+
+        // 2. ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
+        function openTab(tabName) {
+            // Скрываем все
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active-btn'));
+            
+            // Показываем нужное
+            document.getElementById('tab-' + tabName).classList.add('active-tab');
+            document.getElementById('btn-' + tabName).classList.add('active-btn');
+        }
+
+        // 3. КОПИРОВАНИЕ IP
+        function copyIP() {
+            const ip = document.getElementById('ip-address').innerText;
+            navigator.clipboard.writeText(ip);
+            
+            const tooltip = document.getElementById('tooltip');
+            tooltip.style.opacity = '1';
+            setTimeout(() => tooltip.style.opacity = '0', 2000);
+        }
+
+        // 4. МОНИТОРИНГ (API)
+        async function checkStatus() {
+            try {
+                // API mcsrvstat.us
+                const response = await fetch('https://api.mcsrvstat.us/3/c12.play2go.cloud:20002');
+                const data = await response.json();
+                
+                if (data.online) {
+                    document.getElementById('status-text').innerText = "ONLINE";
+                    document.getElementById('status-text').style.color = "#00AA00";
+                    document.getElementById('online-count').innerText = data.players.online;
+                    document.getElementById('max-count').innerText = data.players.max;
+                } else {
+                    document.getElementById('status-text').innerText = "OFFLINE";
+                    document.getElementById('status-text').style.color = "red";
+                }
+            } catch (e) {
+                console.log("Error checking status");
+            }
+        }
+
+        // Запускаем мониторинг через 5 сек после загрузки
+        setTimeout(checkStatus, 5000);
+        setInterval(checkStatus, 60000); // Обновлять раз в минуту
+
+    </script>
 </body>
 </html>
