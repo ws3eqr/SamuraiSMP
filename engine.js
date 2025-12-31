@@ -12,13 +12,13 @@ class SamuraiApp {
         
         // База данных игроков (Админ панель)
         this.topPlayers = [
-            { rank: 1, name: "ws3eqr", kdr: "15.4", country: "🇷🇺 RU" },
-            { rank: 2, name: "Samurai_One", kdr: "12.1", country: "🇯🇵 JP" },
-            { rank: 3, name: "Ninja_Pro", kdr: "9.8", country: "🇺🇦 UA" },
-            { rank: 4, name: "CraftMaster", kdr: "8.5", country: "🇺🇸 US" },
-            { rank: 5, name: "AlexSteve", kdr: "7.2", country: "🇩🇪 DE" },
-            { rank: 6, name: "DragonSlayer", kdr: "6.9", country: "🇨🇳 CN" },
-            { rank: 7, name: "BuilderBob", kdr: "5.0", country: "🇬🇧 UK" }
+            { rank: 1, name: "0", kdr: "0", country: "0" },
+            { rank: 2, name: "0", kdr: "0", country: "0" },
+            { rank: 3, name: "", kdr: "", country: "" },
+            { rank: 4, name: "", kdr: "", country: "" },
+            { rank: 5, name: "", kdr: "", country: "" },
+            { rank: 6, name: "", kdr: "", country: "" },
+            { rank: 7, name: "", kdr: "", country: "" }
         ];
 
         // Словарь переводов
