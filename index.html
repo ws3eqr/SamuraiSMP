@@ -2,157 +2,497 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Samurai SMP | Official Site</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Samurai SMP | Official Portal</title>
     
-    <!-- Иконка сайта -->
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5762/5762900.png" type="image/x-icon">
+    <!-- Иконка -->
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5762/5762900.png">
     
-    <!-- Шрифт Minecraft (Press Start 2P) -->
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    
-    <!-- Подключаем ТВОЙ файл со стилями -->
-    <link rel="stylesheet" href="style.css">
+    <!-- Шрифты и Иконки -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- СТИЛИ (CSS) - ВШИТЫ СЮДА ДЛЯ СКОРОСТИ -->
+    <style>
+        /* --- 1. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ --- */
+        :root {
+            --sakura: #ffb7c5;
+            --sakura-dark: #ff8da1;
+            --bg-deep: #0f0f0f;
+            --bg-panel: rgba(20, 20, 20, 0.95);
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: 1px solid rgba(255, 183, 197, 0.2);
+            --gold: #ffd700;
+            --neon-blue: #00f3ff;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --font-pixel: 'Press Start 2P', cursive;
+            --font-ui: 'Montserrat', sans-serif;
+            --ease: cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        /* --- 2. БАЗОВЫЕ НАСТРОЙКИ --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: var(--sakura); border-radius: 3px; }
+
+        body {
+            background-color: var(--bg-deep);
+            font-family: var(--font-ui);
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+            background-image: url('https://i.pinimg.com/originals/2b/2b/26/2b2b2671542877e8a32d164506c74765.gif');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+        }
+
+        /* Затемнение фона */
+        .overlay-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.75); z-index: -1;
+            backdrop-filter: blur(5px);
+        }
+
+        /* Канвас для частиц (Сакура) */
+        #particles-js {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none;
+        }
+
+        /* --- 3. ЭКРАН ЗАГРУЗКИ (SAMURAI GUARD) --- */
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #050505; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.8s var(--ease);
+        }
+        .shield-wrapper { position: relative; width: 100px; height: 100px; margin-bottom: 30px; }
+        .shield-icon { font-size: 80px; color: var(--sakura); animation: pulseShield 2s infinite; }
+        .scan-line {
+            position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+            animation: scan 1.5s infinite linear;
+        }
+        .loader-text {
+            font-family: var(--font-pixel); font-size: 12px; color: var(--sakura);
+            margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px;
+        }
+        .loader-bar-wrap {
+            width: 300px; height: 4px; background: #222; border-radius: 2px; overflow: hidden;
+        }
+        .loader-bar {
+            width: 0%; height: 100%; background: var(--sakura);
+            box-shadow: 0 0 15px var(--sakura); transition: width 0.3s linear;
+        }
+        .console-logs {
+            font-family: monospace; font-size: 10px; color: #444; margin-top: 15px;
+            height: 60px; overflow: hidden; text-align: center;
+        }
+
+        /* --- 4. ОСНОВНОЙ ЛЕЙАУТ --- */
+        .app-container {
+            display: none; /* Скрыто до загрузки */
+            opacity: 0;
+            position: relative; z-index: 1;
+            max-width: 1200px; margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            grid-template-columns: 280px 1fr;
+            gap: 30px;
+            animation: fadeInApp 1s forwards;
+        }
+
+        /* Сайдбар (Меню) */
+        .sidebar {
+            background: var(--bg-panel);
+            border: var(--border);
+            border-radius: 20px;
+            padding: 30px 20px;
+            height: fit-content;
+            position: sticky; top: 20px;
+            backdrop-filter: blur(10px);
+            display: flex; flex-direction: column; gap: 20px;
+        }
+
+        .brand {
+            text-align: center; margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;
+        }
+        .brand img { width: 80px; filter: drop-shadow(0 0 15px var(--sakura)); transition: 0.5s; }
+        .brand img:hover { transform: rotate(360deg) scale(1.1); }
+        .brand h1 {
+            font-family: var(--font-pixel); font-size: 18px; margin-top: 15px;
+            background: linear-gradient(45deg, #fff, var(--sakura));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        /* Навигация */
+        .nav-btn {
+            background: transparent; border: none; width: 100%;
+            padding: 15px; border-radius: 12px;
+            color: var(--text-muted); font-family: var(--font-ui);
+            font-weight: 600; font-size: 14px; text-align: left;
+            cursor: pointer; transition: 0.3s var(--ease);
+            display: flex; align-items: center; gap: 15px;
+        }
+        .nav-btn i { width: 20px; text-align: center; }
+        .nav-btn:hover { background: rgba(255,255,255,0.05); color: #fff; transform: translateX(5px); }
+        .nav-btn.active {
+            background: linear-gradient(90deg, rgba(255,183,197,0.2), transparent);
+            color: var(--sakura); border-left: 3px solid var(--sakura);
+        }
+
+        /* Состояние сервера в сайдбаре */
+        .sidebar-status {
+            background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px;
+            text-align: center; border: 1px solid #333; margin-top: auto;
+        }
+        .online-badge {
+            display: inline-block; padding: 4px 8px; border-radius: 4px;
+            font-size: 10px; font-weight: 800; text-transform: uppercase;
+            margin-bottom: 5px; background: rgba(0,255,0,0.1); color: #00ff00;
+        }
+
+        /* --- 5. КОНТЕНТНАЯ ЧАСТЬ --- */
+        .content-area {
+            display: flex; flex-direction: column; gap: 30px;
+        }
+
+        /* Header Card */
+        .hero-card {
+            background: linear-gradient(135deg, rgba(40,40,40,0.9), rgba(20,20,20,0.95));
+            border-radius: 20px; padding: 40px; position: relative; overflow: hidden;
+            border: var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .hero-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,183,197,0.1) 0%, transparent 60%);
+            animation: rotateBg 20s linear infinite;
+        }
+        .hero-text { position: relative; z-index: 2; }
+        .hero-title { font-size: 32px; font-weight: 800; margin-bottom: 10px; }
+        .hero-subtitle { color: var(--text-muted); font-size: 14px; max-width: 400px; }
+        
+        .play-btn-group { display: flex; gap: 15px; margin-top: 25px; }
+        .action-btn {
+            padding: 12px 30px; border-radius: 8px; border: none; cursor: pointer;
+            font-weight: 700; font-size: 14px; transition: 0.3s;
+            display: flex; align-items: center; gap: 10px; text-decoration: none;
+        }
+        .btn-primary {
+            background: var(--sakura); color: #000;
+            box-shadow: 0 0 20px rgba(255,183,197,0.4);
+        }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 0 30px rgba(255,183,197,0.6); }
+        .btn-outline {
+            background: transparent; border: 2px solid #444; color: #fff;
+        }
+        .btn-outline:hover { border-color: #fff; background: rgba(255,255,255,0.05); }
+
+        /* Вкладки (Секции) */
+        .tab-section { display: none; animation: slideUp 0.6s var(--ease); }
+        .tab-section.active { display: block; }
+
+        /* СЕТКА HOME */
+        .home-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;
+        }
+        .info-card {
+            background: var(--bg-panel); border: var(--border); border-radius: 16px;
+            padding: 25px; transition: 0.3s;
+        }
+        .info-card:hover { transform: translateY(-5px); border-color: var(--sakura); }
+        .card-icon {
+            font-size: 24px; color: var(--sakura); margin-bottom: 15px;
+            background: rgba(255,183,197,0.1); width: 50px; height: 50px;
+            display: flex; align-items: center; justify-content: center; border-radius: 12px;
+        }
+        .card-title { font-weight: 700; margin-bottom: 10px; font-size: 16px; }
+        .card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+        /* IP COPY BOX */
+        .ip-copy-box {
+            background: #111; border: 1px dashed var(--sakura); border-radius: 12px;
+            padding: 20px; text-align: center; cursor: pointer; position: relative; margin-top: 20px;
+        }
+        .ip-copy-box:hover { background: #1a1a1a; }
+        .ip-val { font-family: monospace; font-size: 18px; color: var(--sakura); letter-spacing: 1px; }
+        .ip-hint { font-size: 10px; color: #666; margin-top: 5px; }
+
+        /* ТАБЛИЦА ТОПА */
+        .top-table-wrapper {
+            background: var(--bg-panel); border-radius: 16px; overflow: hidden;
+            border: var(--border);
+        }
+        .top-table { width: 100%; border-collapse: collapse; }
+        .top-table th {
+            background: rgba(255,183,197,0.1); padding: 15px; text-align: left;
+            font-size: 12px; font-weight: 700; color: var(--sakura);
+        }
+        .top-table td {
+            padding: 15px; border-bottom: 1px solid #333; font-size: 14px;
+        }
+        .top-table tr:hover { background: rgba(255,255,255,0.02); }
+        .rank-badge {
+            width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; font-weight: bold; font-size: 12px; background: #333;
+        }
+        .rank-1 .rank-badge { background: var(--gold); color: #000; box-shadow: 0 0 10px var(--gold); }
+        .rank-2 .rank-badge { background: #c0c0c0; color: #000; }
+        .rank-3 .rank-badge { background: #cd7f32; color: #000; }
+
+        /* ФОРМА ПОДДЕРЖКИ */
+        .support-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 12px; margin-bottom: 8px; color: var(--text-muted); }
+        .form-input {
+            width: 100%; background: #0f0f0f; border: 1px solid #333; padding: 12px;
+            border-radius: 8px; color: #fff; font-family: var(--font-ui); transition: 0.3s;
+        }
+        .form-input:focus { border-color: var(--sakura); outline: none; }
+        .full-width { grid-column: 1 / -1; }
+
+        /* НАСТРОЙКИ */
+        .settings-card {
+            background: var(--bg-panel); border-radius: 16px; padding: 25px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px; border: var(--border);
+        }
+        .switch {
+            position: relative; display: inline-block; width: 50px; height: 26px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333; transition: .4s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px;
+            background-color: white; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--sakura); }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        /* ФУТЕР */
+        .site-footer {
+            margin-top: 50px; text-align: center; color: #555; font-size: 12px; padding-bottom: 20px;
+        }
+
+        /* --- АНИМАЦИИ --- */
+        @keyframes pulseShield { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
+        @keyframes scan { 0% { top: 0; opacity: 1; } 100% { top: 100%; opacity: 0; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInApp { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes rotateBg { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* Мобилка */
+        @media (max-width: 900px) {
+            .app-container { grid-template-columns: 1fr; }
+            .sidebar { position: relative; top: 0; }
+            .support-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- ФОН (Анимация) -->
-    <div class="background-animation"></div>
-    <div class="overlay"></div>
+    <!-- ФОНОВЫЕ ЭФФЕКТЫ -->
+    <div class="overlay-bg"></div>
+    <div id="particles-js"></div> <!-- Сюда подключим скрипт -->
 
-    <!-- 1. ЭКРАН ЗАГРУЗКИ (Anti-DDoS) -->
-    <div id="ddos-screen">
-        <div class="ddos-container">
-            <div class="shield-icon">🛡️</div>
-            <h2 id="ddos-text">Checking your browser...</h2>
-            <div class="loading-bar">
-                <div class="progress"></div>
-            </div>
-            <p class="sub-text">DDoS protection by Samurai Guard</p>
-            <p class="console-text" id="console-log">Connecting to c12.play2go.cloud...</p>
+    <!-- ЭКРАН ЗАГРУЗКИ -->
+    <div id="loader">
+        <div class="shield-wrapper">
+            <i class="fa-solid fa-shield-halved shield-icon"></i>
+            <div class="scan-line"></div>
         </div>
+        <div class="loader-text">SAMURAI GUARD PROTECTION</div>
+        <div class="loader-bar-wrap">
+            <div class="loader-bar" id="progress-bar"></div>
+        </div>
+        <div class="console-logs" id="console-logs"></div>
     </div>
 
-    <!-- 2. ГЛАВНЫЙ САЙТ (Скрыт при загрузке) -->
-    <div id="main-site" class="hidden">
+    <!-- ОСНОВНОЙ САЙТ -->
+    <div class="app-container" id="app">
         
-        <!-- НАВИГАЦИЯ -->
-        <nav class="navbar">
-            <div class="logo">⛩ SAMURAI</div>
-            <div class="menu-items">
-                <!-- data-lang нужен для перевода на английский -->
-                <button onclick="switchTab('home')" class="active-btn" id="btn-home" data-lang="menu_home">Главная</button>
-                <button onclick="switchTab('top')" id="btn-top" data-lang="menu_top">Топ Лист</button>
-                <button onclick="switchTab('support')" id="btn-support" data-lang="menu_support">Поддержка</button>
-                <button onclick="switchTab('settings')" id="btn-settings">⚙️</button>
+        <!-- ЛЕВОЕ МЕНЮ (Сайдбар) -->
+        <aside class="sidebar">
+            <div class="brand">
+                <img src="https://cdn-icons-png.flaticon.com/512/5762/5762900.png" alt="Logo">
+                <h1>SAMURAI SMP</h1>
             </div>
-        </nav>
 
-        <!-- КОНТЕЙНЕР ДЛЯ ВКЛАДОК -->
-        <div class="content-container">
+            <nav>
+                <button class="nav-btn active" onclick="app.switchTab('home')">
+                    <i class="fa-solid fa-house"></i> <span data-i18n="menu_home">Главная</span>
+                </button>
+                <button class="nav-btn" onclick="app.switchTab('top')">
+                    <i class="fa-solid fa-trophy"></i> <span data-i18n="menu_top">Топ Игроков</span>
+                </button>
+                <button class="nav-btn" onclick="app.switchTab('support')">
+                    <i class="fa-solid fa-headset"></i> <span data-i18n="menu_support">Поддержка</span>
+                </button>
+                <button class="nav-btn" onclick="app.switchTab('settings')">
+                    <i class="fa-solid fa-gear"></i> <span data-i18n="menu_settings">Настройки</span>
+                </button>
+            </nav>
 
-            <!-- === ВКЛАДКА 1: ГЛАВНАЯ === -->
-            <div id="tab-home" class="tab-content active-tab">
-                <div class="home-header">
-                    <img src="https://cdn-icons-png.flaticon.com/512/5762/5762900.png" alt="Logo" class="server-logo">
-                    <h1 class="title-text">SAMURAI <span style="color:var(--primary)">SMP</span></h1>
-                    <p class="desc-text" data-lang="desc">Эпическое выживание в стиле Сакуры 🌸</p>
-                </div>
-
-                <!-- Мониторинг -->
-                <div class="status-container">
-                    <div class="online-box">
-                        <span class="status-dot" id="status-dot">🔴</span>
-                        <span id="server-status-text">Checking...</span>
-                    </div>
-                    <div class="players-box">
-                        👥 Online: <span id="player-count" style="color:var(--primary)">0</span> / <span id="max-players">0</span>
-                    </div>
-                </div>
-
-                <!-- IP Адрес -->
-                <div class="ip-wrapper" onclick="copyIp()">
-                    <p class="ip-label">IP ADDRESS:</p>
-                    <div class="ip-box">
-                        <span id="ip-text">c12.play2go.cloud:20002</span>
-                        <span class="copy-icon">📋</span>
-                    </div>
-                    <div id="copy-tooltip">Скопировано!</div>
-                </div>
-
-                <!-- Кнопки -->
-                <div class="social-grid">
-                    <a href="https://t.me/SamuraiSMP" target="_blank" class="mc-button">
-                        <span class="icon">📢</span> News
-                    </a>
-                    <a href="https://t.me/SMPsamurai" target="_blank" class="mc-button">
-                        <span class="icon">💬</span> Chat
-                    </a>
-                    <a href="https://t.me/ws3eqr" target="_blank" class="mc-button admin-btn">
-                        <span class="icon">👑</span> Owner
-                    </a>
+            <div class="sidebar-status">
+                <span class="online-badge" id="status-badge">● CHECKING</span>
+                <div style="font-size: 12px; color: #ccc;">
+                    Игроков: <span id="online-count" style="color:#fff; font-weight:bold;">0</span> / <span id="max-count">0</span>
                 </div>
             </div>
-            
-            <!-- === ВКЛАДКА 2: ТОП ИГРОКОВ === -->
-            <div id="tab-top" class="tab-content hidden">
-                <h2 data-lang="top_title">🏆 ЛУЧШИЕ ВОИНЫ</h2>
-                <p style="font-size: 10px; color:#888; margin-bottom: 20px;" data-lang="top_desc">Список обновляется Сёгуном</p>
+        </aside>
+
+        <!-- ПРАВЫЙ КОНТЕНТ -->
+        <main class="content-area">
+
+            <!-- Вкладка: ГЛАВНАЯ -->
+            <section id="tab-home" class="tab-section active">
+                <div class="hero-card">
+                    <div class="hero-text">
+                        <h2 class="hero-title" data-i18n="hero_title">ДОЛИНА СЁГУНА</h2>
+                        <p class="hero-subtitle" data-i18n="hero_desc">Погрузись в уникальный мир с атмосферой древней Японии, магией Сакуры и честным выживанием.</p>
+                        
+                        <div class="play-btn-group">
+                            <button class="action-btn btn-primary" onclick="app.copyIp()">
+                                <i class="fa-solid fa-play"></i> <span data-i18n="btn_play">НАЧАТЬ ИГРУ</span>
+                            </button>
+                            <a href="https://t.me/SamuraiSMP" target="_blank" class="action-btn btn-outline">
+                                <i class="fa-brands fa-telegram"></i> TELEGRAM
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ip-copy-box" onclick="app.copyIp()">
+                    <div class="ip-val">c12.play2go.cloud:20002</div>
+                    <div class="ip-hint" data-i18n="ip_hint">Нажми, чтобы скопировать IP адрес</div>
+                </div>
+
+                <div class="home-grid" style="margin-top: 30px;">
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fa-solid fa-shield-cat"></i></div>
+                        <div class="card-title" data-i18n="feat_1_title">Без Вайпов</div>
+                        <div class="card-desc" data-i18n="feat_1_desc">Мы ценим твои постройки. Долгие сезоны и защита регионов от гриферов.</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fa-solid fa-gem"></i></div>
+                        <div class="card-title" data-i18n="feat_2_title">Экономика</div>
+                        <div class="card-desc" data-i18n="feat_2_desc">Торгуй с игроками, создавай магазины и стань самым богатым самураем.</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="card-icon"><i class="fa-solid fa-users"></i></div>
+                        <div class="card-title" data-i18n="feat_3_title">Комьюнити</div>
+                        <div class="card-desc" data-i18n="feat_3_desc">Адекватные игроки, частые ивенты и отзывчивая администрация.</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Вкладка: ТОП -->
+            <section id="tab-top" class="tab-section">
+                <h2 style="margin-bottom: 20px;">🏆 <span data-i18n="menu_top">Топ Игроков</span></h2>
+                <div class="top-table-wrapper">
+                    <table class="top-table">
+                        <thead>
+                            <tr>
+                                <th>RANK</th>
+                                <th data-i18n="col_name">НИКНЕЙМ</th>
+                                <th data-i18n="col_stats">УБИЙСТВА / СМЕРТИ</th>
+                                <th data-i18n="col_country">СТРАНА</th>
+                            </tr>
+                        </thead>
+                        <tbody id="top-list-body">
+                            <!-- JS Generated -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Вкладка: ПОДДЕРЖКА -->
+            <section id="tab-support" class="tab-section">
+                <h2 style="margin-bottom: 20px;">🆘 <span data-i18n="menu_support">Поддержка</span></h2>
+                <div class="info-card">
+                    <div class="support-grid">
+                        <div class="form-group">
+                            <label class="form-label">Ваш Никнейм</label>
+                            <input type="text" class="form-input" id="sup-name" placeholder="Steve">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email для связи</label>
+                            <input type="email" class="form-input" placeholder="mail@example.com">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Тема обращения</label>
+                            <select class="form-input">
+                                <option>Жалоба на игрока</option>
+                                <option>Баг / Ошибка</option>
+                                <option>Проблема с донатом</option>
+                                <option>Другое</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Описание</label>
+                            <textarea class="form-input" rows="5" placeholder="Опишите ситуацию подробно..."></textarea>
+                        </div>
+                    </div>
+                    <button class="action-btn btn-primary" style="width:100%; justify-content:center;" onclick="app.sendSupport()">
+                        ОТПРАВИТЬ ЗАЯВКУ
+                    </button>
+                </div>
+            </section>
+
+            <!-- Вкладка: НАСТРОЙКИ -->
+            <section id="tab-settings" class="tab-section">
+                <h2 style="margin-bottom: 20px;">⚙️ <span data-i18n="menu_settings">Настройки</span></h2>
                 
-                <table class="top-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th data-lang="col_nick">Никнейм</th>
-                            <th data-lang="col_country">Страна</th>
-                        </tr>
-                    </thead>
-                    <tbody id="top-list-body">
-                        <!-- Сюда скрипт script.js сам вставит список игроков -->
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- === ВКЛАДКА 3: ПОДДЕРЖКА === -->
-            <div id="tab-support" class="tab-content hidden">
-                <h2 data-lang="sup_title">🆘 ПОДДЕРЖКА</h2>
-                <br>
-                <div class="support-box">
-                    <label data-lang="sup_nick">Ваш игровой ник:</label>
-                    <input type="text" class="input-field" id="sup-nick" placeholder="Steve">
-                    
-                    <label data-lang="sup_mail">Ваша почта:</label>
-                    <input type="email" class="input-field" placeholder="email@example.com">
-                    
-                    <label data-lang="sup_msg">Описание проблемы:</label>
-                    <textarea class="input-field" rows="4" placeholder="Меня загриферили..."></textarea>
-                    
-                    <button class="mc-button btn-send" onclick="sendSupport()" data-lang="btn_send">ОТПРАВИТЬ</button>
-                </div>
-            </div>
-
-            <!-- === ВКЛАДКА 4: НАСТРОЙКИ === -->
-            <div id="tab-settings" class="tab-content hidden">
-                <h2 data-lang="set_title">⚙️ НАСТРОЙКИ</h2>
-                <br>
-                <div class="settings-container">
-                    <div class="setting-row">
-                        <span data-lang="set_lang">Язык / Language</span>
-                        <button class="mc-button small-btn" onclick="toggleLang()" id="lang-btn">RU</button>
+                <div class="settings-card">
+                    <div>
+                        <div style="font-weight:700; margin-bottom:5px;">Язык интерфейса</div>
+                        <div style="font-size:12px; color:#888;">Switch Language (RU / EN)</div>
                     </div>
-                    <div class="setting-row">
-                        <span data-lang="set_anim">Анимации фона</span>
-                        <button class="mc-button small-btn" style="color: lime;">ON</button>
-                    </div>
-                    <br>
-                    <p style="font-size: 8px; color: #555;">Protected by SamuraiGuard v2.1</p>
+                    <button class="action-btn btn-outline" id="lang-btn" onclick="app.toggleLang()">RU</button>
                 </div>
-            </div>
 
-        </div>
+                <div class="settings-card">
+                    <div>
+                        <div style="font-weight:700; margin-bottom:5px;">Анимация Сакуры</div>
+                        <div style="font-size:12px; color:#888;">Отключите, если лагает (Falling Particles)</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" checked onchange="app.toggleParticles(this)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="settings-card">
+                    <div>
+                        <div style="font-weight:700; margin-bottom:5px;">Звуковые эффекты</div>
+                        <div style="font-size:12px; color:#888;">Звуки интерфейса</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- ФУТЕР -->
+            <footer class="site-footer">
+                &copy; 2025 Samurai SMP. All rights reserved.<br>
+                Designed by @ws3eqr. Hosted on GitHub.
+            </footer>
+
+        </main>
     </div>
 
-    <!-- Подключаем ТВОЙ файл со скриптами -->
-    <script src="script.js"></script>
+    <!-- ПОДКЛЮЧАЕМ ВТОРОЙ ФАЙЛ С ЛОГИКОЙ -->
+    <script src="engine.js"></script>
 </body>
 </html>
